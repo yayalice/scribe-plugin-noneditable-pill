@@ -4,6 +4,16 @@
   "authors": [
     "Alice Li <alice@addepar.com>"
   ],
+  "main": "dist/scribe-shim.js",
+  "ignore": [
+    "example",
+    "src",
+    "test",
+    ".gitinore",
+    "Gruntfile.js",
+    "package.json",
+    "*.sh"
+  ],
   "devDependencies": {
     "requirejs": "~2.1.9",
     "scribe": "~0.1.10",

@@ -1,7 +1,7 @@
 require({
   paths: {
     "scribe": "./../bower_components/scribe/scribe",
-    "scribe-plugin-noneditable-pill": "./../build/scribe-plugin-noneditable-pill.amd",
+    "scribe-plugin-noneditable-pill": "./../dist/scribe-plugin-noneditable-pill",
     "scribe-plugin-toolbar": "./../bower_components/scribe-plugin-toolbar/scribe-plugin-toolbar"
   }
 }, ["scribe", "scribe-plugin-noneditable-pill", "scribe-plugin-toolbar"], function(Scribe, scribePluginNoneditablePill, scribePluginToolbar) {

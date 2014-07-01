@@ -22,7 +22,7 @@ module.exports = function(grunt) {
     concat: {
       src: {
         files: {
-          'build/scribe-plugin-noneditable-pill.amd.js': ['build/amd/**/*.js']
+          'dist/scribe-plugin-noneditable-pill.js': ['build/amd/**/*.js']
         }
       }
     },
