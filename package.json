@@ -1,0 +1,33 @@
+{
+  "name": "scribe-plugin-noneditable-pill",
+  "version": "0.0.1",
+  "description": "Plugin for scribe to handle noneditable pills",
+  "main": "scribe-plugin-noneditable.coffee",
+  "devDependencies": {
+    "chai": "~1.9.1",
+    "grunt": "~0.4.4",
+    "grunt-bower-task": "~0.3.4",
+    "grunt-contrib-coffee": "~0.10.1",
+    "grunt-contrib-watch": "~0.6.1",
+    "grunt-es6-module-transpiler": "~0.6.0",
+    "grunt-concat-sourcemap": "~0.4.1",
+    "grunt-contrib-concat": "~0.4.0",
+    "http-server": "~0.6.1",
+    "mocha": "~1.18.2",
+    "selenium-webdriver": "~2.41.0",
+    "scribe-test-harness": "~0.0.2"
+  },
+  "scripts": {
+    "test": "./run-tests.sh"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/yayalice/scribe.git"
+  },
+  "author": "yayalice",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/yayalice/scribe/issues"
+  },
+  "homepage": "https://github.com/yayalice/scribe"
+}
