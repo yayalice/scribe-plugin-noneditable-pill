@@ -10,7 +10,7 @@ require({
     return document.querySelector(".scribe-html").textContent = scribe.getHTML();
   };
   "use strict";
-  scribe = new Scribe(document.querySelector(".scribe"), {
+  window.scribe = scribe = new Scribe(document.querySelector(".scribe"), {
     allowBlockElements: true
   });
   scribe.on("content-changed", updateHTML);
@@ -57,10 +57,10 @@ require({
   /*
   Plugins
    */
-  scribe.use(scribePluginNoneditablePill["default"]());
+  scribe.use(scribePluginNoneditablePill());
   scribe.use(scribePluginToolbar(document.querySelector(".toolbar")));
   if (scribe.allowsBlockElements()) {
-    return scribe.setContent("<p>Hello, World!</p>");
+    return scribe.setContent('<p>Hello, <nep class="non-editable">World</nep>!</p>');
   } else {
     return scribe.setContent("Hello, World!");
   }

@@ -7,9 +7,7 @@
     "chai": "~1.9.1",
     "grunt": "~0.4.4",
     "grunt-bower-task": "~0.3.4",
-    "grunt-contrib-coffee": "~0.10.1",
     "grunt-contrib-watch": "~0.6.1",
-    "grunt-es6-module-transpiler": "~0.6.0",
     "grunt-concat-sourcemap": "~0.4.1",
     "grunt-contrib-concat": "~0.4.0",
     "http-server": "~0.6.1",
@@ -22,12 +20,8 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/yayalice/scribe.git"
+    "url": "git@github.com:yayalice/scribe-plugin-noneditable-pill.git"
   },
   "author": "yayalice",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/yayalice/scribe/issues"
-  },
-  "homepage": "https://github.com/yayalice/scribe"
+  "license": "ISC"
 }

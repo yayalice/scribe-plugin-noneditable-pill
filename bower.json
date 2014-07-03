@@ -17,7 +17,6 @@
   "devDependencies": {
     "requirejs": "~2.1.9",
     "scribe": "~0.1.10",
-    "scribe-plugin-link-prompt-command": "guardian/scribe-plugin-link-prompt-command#master",
     "scribe-plugin-toolbar": "0.1.1"
   }
 }

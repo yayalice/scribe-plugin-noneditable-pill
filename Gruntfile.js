@@ -7,36 +7,11 @@ module.exports = function(grunt) {
         }
       }
     },
-    coffee: {
-      src: {
-        options: {
-          bare: true
-        },
-        expand: true,
-        cwd: 'src',
-        src: ['**/*.coffee'],
-        dest: 'build/src',
-        ext: '.js'
-      }
-    },
     concat: {
       src: {
         files: {
-          'dist/scribe-plugin-noneditable-pill.js': ['build/amd/**/*.js']
+          'dist/scribe-plugin-noneditable-pill.js': ['src/**/*.js']
         }
-      }
-    },
-    transpile: {
-      src: {
-        type: "amd",
-        files: [
-          {
-            cwd: 'build/src/',
-            expand: true,
-            src: ['**/*.js'],
-            dest: 'build/amd/'
-          }
-        ]
       }
     },
     watch: {
@@ -49,16 +24,14 @@ module.exports = function(grunt) {
         tasks: ["default"]
       },
       src: {
-        files: ["src/**/*.coffee"],
-        tasks: ["coffee:src", "transpile:src", "concat:src"]
+        files: ["src/**/*.js"],
+        tasks: ["concat:src"]
       }
     }
   });
   grunt.loadNpmTasks('grunt-bower-task');
-  grunt.loadNpmTasks('grunt-contrib-coffee');
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-watch');
-  grunt.loadNpmTasks('grunt-es6-module-transpiler');
 
-  grunt.registerTask("default", ["bower", "coffee:src", "transpile:src", "concat:src", "watch"]);
+  grunt.registerTask("default", ["bower", "concat:src", "watch"]);
 };

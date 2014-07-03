@@ -11,6 +11,6 @@ var mocha = new Mocha();
  */
 mocha.timeout(1200000);
 mocha.reporter('spec');
-mocha.addFile(__dirname + '/main.spec.js');
+mocha.addFile(__dirname + '/noneditable.spec.js');
 
 createRunner(mocha);
