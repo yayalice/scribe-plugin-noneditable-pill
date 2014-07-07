@@ -16,7 +16,7 @@
   ],
   "devDependencies": {
     "requirejs": "~2.1.9",
-    "scribe": "~0.1.10",
-    "scribe-plugin-toolbar": "0.1.1"
+    "scribe": "~0.1.15",
+    "scribe-plugin-toolbar": "0.1.4"
   }
 }

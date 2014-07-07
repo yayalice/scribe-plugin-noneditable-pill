@@ -11,14 +11,42 @@ define([
   'use strict';
 
   return function() {
+    var KEY_CODES, getCurrentRange, moveSelection, moveSelectionToTarget;
 
-    var getCurrentRange = function() {
+    KEY_CODES = {
+      BACKSPACE: 8,
+      DELETE: 46,
+      DOWN: 40,
+      ENTER: 13,
+      LEFT: 37,
+      RIGHT: 39,
+      SPACEBAR: 32,
+      TAB: 9,
+      UP: 38,
+      ESCAPE: 27
+    };
+
+    getCurrentRange = function() {
       var selection;
       selection = new scribe.api.Selection();
       return selection.range;
     };
-    var moveSelection = function() {
-      var caretContainer, collapse, currentRange, element, hasSideContent, isCollapsed, nonEditableEnd, nonEditableStart, parentCaret, selection;
+
+    moveSelectionToTarget = function(target) {
+      var nonEditableTarget = DomHelpers.getNonEditableParent(target);
+      if (nonEditableTarget){
+        // Select the entire target
+        var newRange = document.createRange();
+        newRange.setStartBefore(nonEditableTarget);
+        newRange.setEndAfter(nonEditableTarget);
+
+        return DomHelpers.activateRange(newRange);
+      }
+      return moveSelection();
+    };
+
+    moveSelection = function() {
+      var caretContainer, collapse, currentRange, element, hasSideContent, nonEditableEnd, nonEditableStart, parentCaret, selection;
       hasSideContent = function(range, element, left) {
         var container, len, offset;
         container = range.startContainer;
@@ -36,7 +64,6 @@ define([
       if (!(currentRange = selection.range)) {
         return;
       }
-      isCollapsed = currentRange.collapsed;
       nonEditableStart = DomHelpers.getNonEditableParent(currentRange.startContainer);
       nonEditableEnd = DomHelpers.getNonEditableParent(currentRange.endContainer);
       parentCaret = DomHelpers.getCurrentCaretContainer(currentRange);
@@ -61,9 +88,31 @@ define([
         }
         return DomHelpers.activateRange(currentRange);
       } else if ((parentCaret != null ? parentCaret.length : void 0) > 0 && !DomHelpers.isNonEditable(DomHelpers.getNonEmptySideNode(currentRange, true)) && !DomHelpers.isNonEditable(DomHelpers.getNonEmptySideNode(currentRange, false))) {
-        return this._removeCaretContainer(parentCaret[0]);
+        return DomHelpers.removeCaretContainer(parentCaret[0]);
       }
     };
+
+    function cleanUpBrsFromCaret(parentNode) {
+      // Instead of TreeWalker, which gets confused when the BR is added to the dom,
+      // we recursively traverse the tree to look for an empty node that can have childNodes
+
+      var node = parentNode.firstElementChild;
+
+      while (node) {
+        if (node.classList.contains('non-editable-caret')) {
+          var child, _i, _len;
+          for (_i = 0, _len = node.children.length; _i < _len; _i++) {
+            child = node.children[_i];
+            if (child.nodeName === "BR") {
+              node.removeChild(child);
+            }
+          }
+        } else {
+          cleanUpBrsFromCaret(node);
+        }
+        node = node.nextElementSibling;
+      }
+    }
 
     return function(scribe) {
       var noneditablePillCommand;
@@ -77,11 +126,12 @@ define([
             return;
           }
           selectedHtmlDocumentFragment = range.extractContents();
-          noneditablePillElement = document.createElement("nep");
+          noneditablePillElement = document.createElement("pill");
           noneditablePillElement.appendChild(selectedHtmlDocumentFragment);
           DomHelpers.addClass(noneditablePillElement, 'non-editable');
           range.insertNode(noneditablePillElement);
           range.selectNode(noneditablePillElement);
+          // console.log('modifying range at execute ' + range.toString());
           selection.selection.removeAllRanges();
           return selection.selection.addRange(range);
         });
@@ -93,22 +143,39 @@ define([
         var selection;
         selection = new scribe.api.Selection();
         return !!selection.getContaining((function(element) {
-          return element.nodeName === "NEP" && DomHelpers.hasClass(element, 'non-editable');
+          return element.nodeName === "PILL" && DomHelpers.hasClass(element, 'non-editable');
         }).bind(this));
       };
+
       scribe.commands.noneditablePill = noneditablePillCommand;
+
+      scribe.registerHTMLFormatter('normalize', function (html) {
+        var bin = document.createElement('div');
+        bin.innerHTML = html;
+        cleanUpBrsFromCaret(bin);
+        return bin.innerHTML;
+      });
+
+      scribe.el.addEventListener("mouseup", function(event){
+        moveSelectionToTarget(event.target);
+      });
+      scribe.el.addEventListener("keyup", function(event){
+        moveSelection();
+      });
       scribe.el.addEventListener("keydown", function(event) {
         var caret, endElement, handleLeftNodeCase, handleRightNodeCase, insertSelect, isCharacter, isCollapsed, keyCode, leftNode, leftNodeDeep, nonEditableParent, range, rightNode, rightNodeDeep, startElement;
         handleLeftNodeCase = (function(_this) {
           return function() {
             if (leftNode) {
-              if (keyCode === DomHelpers.KEY_CODES.LEFT && isCollapsed) {
+              if (keyCode === KEY_CODES.LEFT && isCollapsed) {
                 DomHelpers.selectElement(leftNode, "none");
+                DomHelpers.removeCaretContainers(scribe);
                 return event.preventDefault();
-              } else if (keyCode === DomHelpers.KEY_CODES.BACKSPACE) {
-                return DomHelpers.selectElement(leftNode, "none");
+              } else if (keyCode === KEY_CODES.BACKSPACE) {
+                DomHelpers.selectElement(leftNode, "none");
+                return DomHelpers.removeCaretContainers(scribe);
               }
-            } else if (leftNodeDeep && keyCode === DomHelpers.KEY_CODES.BACKSPACE) {
+            } else if (leftNodeDeep && keyCode === KEY_CODES.BACKSPACE) {
               return DomHelpers.insertCaretContainer(leftNodeDeep, false);
             }
           };
@@ -116,13 +183,15 @@ define([
         handleRightNodeCase = (function(_this) {
           return function() {
             if (rightNode) {
-              if (keyCode === DomHelpers.KEY_CODES.DELETE) {
-                return DomHelpers.selectElement(rightNode, "none");
-              } else if (keyCode === DomHelpers.KEY_CODES.RIGHT && isCollapsed) {
+              if (keyCode === KEY_CODES.DELETE) {
                 DomHelpers.selectElement(rightNode, "none");
+                return DomHelpers.removeCaretContainers(scribe);
+              } else if (keyCode === KEY_CODES.RIGHT && isCollapsed) {
+                DomHelpers.selectElement(rightNode, "none");
+                DomHelpers.removeCaretContainers(scribe);
                 return event.preventDefault();
               }
-            } else if (rightNodeDeep && keyCode === DomHelpers.KEY_CODES.DELETE && !rightNode) {
+            } else if (rightNodeDeep && keyCode === KEY_CODES.DELETE && !rightNode) {
               return DomHelpers.insertCaretContainer(rightNodeDeep, true);
             }
           };
@@ -131,19 +200,7 @@ define([
           return keyCode >= 48 && keyCode <= 90 || keyCode >= 96 && keyCode <= 111 || keyCode >= 186 && keyCode <= 222;
         };
         keyCode = event.keyCode;
-        if (this.showConfigPopover) {
-          insertSelect = this.getInsertSelectController();
-          if (keyCode === this.KEY_CODES.DOWN) {
-            return insertSelect.downArrowPressed(event);
-          } else if (keyCode === this.KEY_CODES.UP) {
-            return insertSelect.upArrowPressed(event);
-          } else if ((keyCode === this.KEY_CODES.ENTER || keyCode === this.KEY_CODES.TAB) && insertSelect.get('filteredContent').length > 0) {
-            return insertSelect.enterPressed(event);
-          } else if (keyCode === this.KEY_CODES.ESCAPE) {
-            return insertSelect.escapePressed(event);
-          }
-        }
-        moveSelection(scribe);
+        moveSelection();
         range = getCurrentRange();
         isCollapsed = range.collapsed;
         startElement = range.startContainer;
@@ -153,10 +210,10 @@ define([
         rightNode = DomHelpers.getNonEditableOnRight(scribe);
         leftNodeDeep = DomHelpers.getNonEditableOnLeft(scribe, true);
         rightNodeDeep = DomHelpers.getNonEditableOnRight(scribe, true);
-        if ((event.metaKey || event.ctrlKey) && (keyCode !== DomHelpers.KEY_CODES.DELETE && keyCode !== DomHelpers.KEY_CODES.BACKSPACE)) {
+        if ((event.metaKey || event.ctrlKey) && (keyCode !== KEY_CODES.DELETE && keyCode !== KEY_CODES.BACKSPACE)) {
           return;
         }
-        if (isCharacter(keyCode) || keyCode === DomHelpers.KEY_CODES.BACKSPACE || keyCode === DomHelpers.KEY_CODES.DELETE) {
+        if (isCharacter(keyCode) || keyCode === KEY_CODES.BACKSPACE || keyCode === KEY_CODES.DELETE) {
           if ((leftNode || rightNode) && !isCollapsed) {
             caret = DomHelpers.insertCaretContainer(leftNode || rightNode, leftNode ? false : true);
             DomHelpers.deleteRange(range);
@@ -164,7 +221,7 @@ define([
           } else if (nonEditableParent) {
             DomHelpers.deleteRange(range);
           }
-          if ((keyCode === DomHelpers.KEY_CODES.BACKSPACE || keyCode === DomHelpers.KEY_CODES.DELETE) && !isCollapsed && nonEditableParent) {
+          if ((keyCode === KEY_CODES.BACKSPACE || keyCode === KEY_CODES.DELETE) && !isCollapsed && nonEditableParent) {
             return event.preventDefault();
           }
         }

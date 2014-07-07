@@ -6,19 +6,6 @@ define("dom_helpers",
 
     INVISIBLE_CHAR = '\uFEFF';
 
-    KEY_CODES = {
-      BACKSPACE: 8,
-      DELETE: 46,
-      DOWN: 40,
-      ENTER: 13,
-      LEFT: 37,
-      RIGHT: 39,
-      SPACEBAR: 32,
-      TAB: 9,
-      UP: 38,
-      ESCAPE: 27
-    };
-
     EDITOR_CLASS = 'text-editor';
 
     removeElementKeepingChildren = function(node) {
@@ -66,7 +53,7 @@ define("dom_helpers",
         if (collapseMode !== "none") {
           range.collapse(collapseBoolean);
         }
-        return this.activateRange(range);
+        return activateRange(range);
       } else if (document.selection) {
         range = document.body.createTextRange();
         range.moveToElementText(element);
@@ -78,11 +65,10 @@ define("dom_helpers",
     };
 
     activateRange = function(range) {
-      var selection;
-      selection = window.getSelection();
-      selection.removeAllRanges();
-      selection.addRange(range);
-      return range;
+      var selection = new scribe.api.Selection();
+      selection.selection.removeAllRanges();
+      selection.selection.addRange(range);
+      return range
     };
 
     isEmpty = function(element) {
@@ -155,12 +141,12 @@ define("dom_helpers",
     };
 
     isNonEditable = function(node) {
-      return !getClosestElementWithClass(node, 'non-editable');
+      return getClosestElementWithClass(node, 'non-editable');
     };
 
     insertCaretContainer = function(target, before) {
       var caretContainer;
-      caretContainer = createElementsFromString('<span class="non-editable-caret">' + INVISIBLE_CHAR + '</span>')[0];
+      caretContainer = createElementsFromString('<caret class="non-editable-caret">' + INVISIBLE_CHAR + '</caret>')[0];
       if (before) {
         target.parentElement.insertBefore(caretContainer, target);
       } else {
@@ -169,15 +155,18 @@ define("dom_helpers",
       return caretContainer;
     };
 
-    getCurrentCaretContainer = function(range) {
-      var containingElement;
-      containingElement = range != null ? range.startContainer.parentElement : void 0;
-      return getClosestElementWithClass(containingElement, 'non-editable-caret');
+    getCurrentCaretContainer = function(node) {
+      while (node) {
+        if (node.classList && node.classList.contains('non-editable-caret')) {
+          return node;
+        }
+        node = node.parentNode;
+      }
     };
 
     removeCaretContainer = function(caretContainer) {
       var child, contents, savedSelection;
-      if (caretContainer.parentElement.innerHTML === '<span class="non-editable-caret">' + INVISIBLE_CHAR + '</span>') {
+      if (caretContainer.parentElement.innerHTML === '<caret class="non-editable-caret">' + INVISIBLE_CHAR + '</caret>') {
         return $(caretContainer.parentElement).html('<br>');
       }
       if ((child = caretContainer.childNodes[0]) && child.nodeValue.charAt(0) === INVISIBLE_CHAR) {
@@ -193,18 +182,18 @@ define("dom_helpers",
       var caretContainer, caretContainers, child, currentCaretContainer, range, selection, _ref;
       selection = new scribe.api.Selection();
       range = selection.range;
-      currentCaretContainer = getCurrentCaretContainer(range);
+      currentCaretContainer = getCurrentCaretContainer(range.startContainer);
       while ((caretContainers = scribe.el.querySelectorAll('.non-editable-caret'))) {
         caretContainer = caretContainers[0];
         if (caretContainers.length === 0 || caretContainer === currentCaretContainer && caretContainers.length === 1) {
           return;
         }
-        if (caretContainer.parentElement.innerHTML === '<span class="non-editable-caret">' + this.INVISIBLE_CHAR + '</span>') {
+        if (caretContainer.parentElement.innerHTML === '<caret class="non-editable-caret">' + INVISIBLE_CHAR + '</caret>') {
           $(caretContainer.parentElement).html('<br>');
           continue;
         }
         child = caretContainer.childNodes[0];
-        if (child && ((_ref = child.nodeValue) != null ? _ref.charAt(0) : void 0) === this.INVISIBLE_CHAR) {
+        if (child && ((_ref = child.nodeValue) != null ? _ref.charAt(0) : void 0) === INVISIBLE_CHAR) {
           child = child.deleteData(0, 1);
         }
         removeElementKeepingChildren(caretContainer);
@@ -221,7 +210,7 @@ define("dom_helpers",
       }
       if (currentRange.startOffset === 0 && isNonEditable(leftNode)) {
         return leftNode;
-      } else if (currentRange.startOffset === 1 && isNonEditable(leftNode) && ((_ref = currentRange.startContainer.nodeValue) != null ? _ref.charAt(0) : void 0) === this.INVISIBLE_CHAR) {
+      } else if (currentRange.startOffset === 1 && isNonEditable(leftNode) && currentRange.startContainer.textContent.charAt(0) === INVISIBLE_CHAR) {
         return leftNode;
       }
     };
@@ -237,7 +226,7 @@ define("dom_helpers",
       endContainer = currentRange.endContainer;
       if (currentRange.endOffset === endContainer.length && isNonEditable(rightNode)) {
         return rightNode;
-      } else if (currentRange.endOffset === endContainer.length - 1 && endContainer.nodeValue.charAt(endContainer.nodeValue.length - 1) === this.INVISIBLE_CHAR && isNonEditable(rightNode)) {
+      } else if (currentRange.endOffset === endContainer.length - 1 && endContainer.nodeValue.charAt(endContainer.nodeValue.length - 1) === INVISIBLE_CHAR && isNonEditable(rightNode)) {
         return rightNode;
       }
     };
@@ -268,7 +257,6 @@ define("dom_helpers",
       return sideNode;
     };
 
-    __exports__.KEY_CODES = KEY_CODES;
     __exports__.addClass = addClass;
     __exports__.deleteRange = deleteRange;
     __exports__.selectElement = selectElement;
