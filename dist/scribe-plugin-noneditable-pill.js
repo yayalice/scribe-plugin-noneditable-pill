@@ -1,7 +1,6 @@
-define("dom-helpers",
-  ["exports"],
+define('dom-helpers',["exports"],
   function(__exports__) {
-    "use strict";
+    
     var EDITOR_CLASS, INVISIBLE_CHAR, KEY_CODES, activateRange, addClass, createElementsFromString, deleteRange, getClosestElementWithClass, getCurrentCaretContainer, getCurrentRange, getNonEditableOnLeft, getNonEditableOnRight, getNonEditableParent, getNonEmptySideNode, hasClass, insertCaretContainer, insertElementAtRange, insertHTMLAtRange, isEmpty, isNonEditable, isObjEmpty, removeCaretContainer, removeCaretContainers, removeElementKeepingChildren, selectElement;
 
     INVISIBLE_CHAR = '\uFEFF';
@@ -272,7 +271,7 @@ define("dom-helpers",
     __exports__.removeCaretContainers = removeCaretContainers;
     __exports__.activateRange = activateRange;
   });
-define([
+define('scribe-plugin-noneditable-pill',[
   'dom-helpers'
 ], function(
   DomHelpers
@@ -282,7 +281,7 @@ define([
    * Adds a command for non-editable blocks of text.
    */
 
-  'use strict';
+  
 
   return function() {
     var KEY_CODES, getCurrentRange, moveSelection, moveSelectionToTarget;
@@ -506,3 +505,4 @@ define([
   };
 
 });
+

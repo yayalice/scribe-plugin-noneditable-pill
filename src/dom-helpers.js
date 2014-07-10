@@ -1,5 +1,4 @@
-define("dom-helpers",
-  ["exports"],
+define(["exports"],
   function(__exports__) {
     "use strict";
     var EDITOR_CLASS, INVISIBLE_CHAR, KEY_CODES, activateRange, addClass, createElementsFromString, deleteRange, getClosestElementWithClass, getCurrentCaretContainer, getCurrentRange, getNonEditableOnLeft, getNonEditableOnRight, getNonEditableParent, getNonEmptySideNode, hasClass, insertCaretContainer, insertElementAtRange, insertHTMLAtRange, isEmpty, isNonEditable, isObjEmpty, removeCaretContainer, removeCaretContainers, removeElementKeepingChildren, selectElement;

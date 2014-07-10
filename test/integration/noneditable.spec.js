@@ -28,12 +28,12 @@ describe('non editable pill plugin', function () {
   });
 
   beforeEach(function () {
-    return driver.executeAsyncScript(function (done) {
-      require(['../../dist/scribe-plugin-noneditable-pill'], function (nonEditablePlugin) {
+    return driver.executeAsyncScript(function (options, done) {
+      require(['scribe-plugin-noneditable-pill'], function (nonEditablePlugin) {
         window.scribe.use(nonEditablePlugin());
         done();
       });
-    });
+    }, {})
   });
 
   given('the text editor contains a non-editable pill', function () {

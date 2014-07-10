@@ -7,12 +7,26 @@ module.exports = function(grunt) {
         }
       }
     },
-    concat: {
-      src: {
-        files: {
-          'dist/scribe-plugin-noneditable-pill.js': ['src/**/*.js']
+    requirejs: {
+      compile: {
+        options: {
+          baseUrl: "src",
+          mainConfigFile: "main.js",
+          include: ["scribe-plugin-noneditable-pill"],
+          out: "dist/scribe-plugin-noneditable-pill.js",
+          optimize: "none"
+        }
+      },
+      minify: {
+        options: {
+          baseUrl: "src",
+          mainConfigFile: "main.js",
+          include: ["scribe-plugin-noneditable-pill"],
+          out: "dist/scribe-plugin-noneditable-pill.min.js",
+          optimize: "uglify"
         }
       }
+
     },
     watch: {
       bower: {
@@ -25,13 +39,13 @@ module.exports = function(grunt) {
       },
       src: {
         files: ["src/**/*.js"],
-        tasks: ["concat:src"]
+        tasks: ["requirejs:compile", "requirejs:minify"]
       }
     }
   });
   grunt.loadNpmTasks('grunt-bower-task');
-  grunt.loadNpmTasks('grunt-contrib-concat');
+  grunt.loadNpmTasks('grunt-contrib-requirejs');
   grunt.loadNpmTasks('grunt-contrib-watch');
 
-  grunt.registerTask("default", ["bower", "concat:src", "watch"]);
+  grunt.registerTask("default", ["bower", "requirejs:compile", "requirejs:minify", "watch"]);
 };
