@@ -1,5 +1,5 @@
 define([
-  'dom_helpers'
+  'dom-helpers'
 ], function(
   DomHelpers
 ) {

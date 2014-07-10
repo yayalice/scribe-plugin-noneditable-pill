@@ -1,4 +1,4 @@
-define("dom_helpers",
+define("dom-helpers",
   ["exports"],
   function(__exports__) {
     "use strict";
@@ -273,7 +273,7 @@ define("dom_helpers",
     __exports__.activateRange = activateRange;
   });
 define([
-  'dom_helpers'
+  'dom-helpers'
 ], function(
   DomHelpers
 ) {
